@@ -1,0 +1,18 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /dev
+devName: 赵政
+age: 23
+ooid: 1
+
+
+dev:
+  user-id: 01
+  user-name: 赵政
+  userage: 23
+
+#================data security Config=============================
+data.security.100w: 1000000
+data.security.1000w: 10000000
+data.security.5000w: 50000000
