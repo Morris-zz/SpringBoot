@@ -1,6 +1,6 @@
 package com.example.oppo.demo.service;
 
-import com.example.oppo.demo.domain.Permission;
+import com.example.oppo.demo.enums.Permission;
 import com.example.oppo.demo.domain.Person;
 import com.example.oppo.demo.domain.User;
 import com.example.oppo.demo.dto.DownLoadExcelDto;

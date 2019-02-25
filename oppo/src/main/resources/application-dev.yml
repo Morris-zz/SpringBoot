@@ -16,3 +16,5 @@ dev:
 data.security.100w: 1000000
 data.security.1000w: 10000000
 data.security.5000w: 50000000
+
+foreign: true

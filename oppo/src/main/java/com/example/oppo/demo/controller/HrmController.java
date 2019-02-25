@@ -2,7 +2,7 @@ package com.example.oppo.demo.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.example.oppo.demo.domain.Permission;
+import com.example.oppo.demo.enums.Permission;
 import com.example.oppo.demo.domain.Person;
 import com.example.oppo.demo.domain.User;
 import com.example.oppo.demo.dto.DownLoadExcelDto;
@@ -12,10 +12,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,12 +38,52 @@ public class HrmController {
 
     @Value("${data.security.100w:}")
     private long a;
+    @Value("${foreign:false}")
+    private boolean is;
     /**
      * 基本搭建
      * @return
      */
     @RequestMapping(value = "/hrm",method = RequestMethod.GET)
-    public List<User> hrm(){
+    public Object hrm(@RequestParam(value = "id",required = false) Integer id,
+                            @RequestParam(value = "tagValue" , required = false) String tagValue,
+                            @RequestParam(value = "tagValueMap" , required = false) String tagValueMap,
+                            @RequestParam(value = "tagId" , required = false) Long tagId,
+                            @RequestParam(value = "tagValueDistribution" , required = false) Long tagValueDistribution,
+                            @PageableDefault(value = 10,size = 10,direction = Sort.Direction.DESC,sort = {"id"}) Pageable pageable){
+        Specification specification =  new Specification<Person>() {
+            @Override
+            public Predicate toPredicate(Root root, CriteriaQuery criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                //创建Predicate的list,用于储存查询条件
+                List<Predicate> predicates = new ArrayList<>();
+                /** 校验非空 */
+                if (id != null){
+                    predicates.add(criteriaBuilder.equal(root.get("id"),id));
+                }
+                if (tagValue != null && !tagValue.equals("")){
+                    predicates.add(criteriaBuilder.equal(root.get("tagValue"),tagValue));
+                }
+                if (tagValueMap != null && !tagValueMap.equals("")){
+                    predicates.add(criteriaBuilder.like(root.get("tagValueMap"),tagValueMap+"%"));
+                }
+                if (tagId != null){
+                    predicates.add(criteriaBuilder.equal(root.get("tagId"),tagId));
+                }
+                if (tagValueDistribution != null){
+                    predicates.add(criteriaBuilder.equal(root.get("tagValueDistribution"),tagValueDistribution));
+                }
+                return  criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));
+            }
+        };
+
+
+        //Pageable pageable = PageRequest.of(0,3, Sort.Direction.DESC,"id");
+        //Page<Person> all = personRepository.findAll(pageable);
+
+
+        Page all = personRepository.findAll(specification, pageable);
+        //System.out.println(is);
+
         List<User> list = new ArrayList<>();
         User user = new User("21","123","111");
         User user2 = new User("121","1123","1111");
@@ -45,7 +94,8 @@ public class HrmController {
             u.setName("zzzzz");
 
         }
-        return list;
+
+        return all;
 
     }
 

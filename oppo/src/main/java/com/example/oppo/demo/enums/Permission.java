@@ -1,4 +1,4 @@
-package com.example.oppo.demo.domain;
+package com.example.oppo.demo.enums;
 
 /**
  * @author zhaozheng
